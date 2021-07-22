@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Wide Shop</title>
+    <!-- <link href="css/bootstrap.min.css" rel="stylesheet"> -->
+    <link href="css/layout.css" rel="stylesheet">
+    <link href="css/responsive.css" rel="stylesheet">
+    <link href="css/font-awesome/css/fontawesome.min.css" rel="stylesheet">
+    <link href="css/font-awesome/css/brands.css" rel="stylesheet">
+    <link href="css/font-awesome/css/solid.css" rel="stylesheet">
+
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div id="container">
+        <div id="header">WORLD WIDE SHOP <br> Online Store </div>
+        <div id="menu">
+            <button><i class="fas fa-bars"></i></button>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About Us</a></li>
+                <li class="has-sub"><a href="javascript:void()">Products</a>
+                    <ul>
+                        <li><a href="#">Electronics</a></li>
+                        <li class="has-sub"><a href="#">Jewelery</a>
+                            <!--<ul>
+                                <li><a href="#">Jewelery</a></li>
+                                <li><a href="#">Men Clothing</a></li>
+                                <li><a href="#">Women Clothing</a></li>
+                            </ul>-->
+                        </li>
+                        <li><a href="#">Men Clothing</a></li>
+                        <li><a href="#">Women Clothing</a></li>
+                    </ul>
+                </li>
+                <li><a href="cart.html">Cart</a></li>
+                <li class="has-sub"><a href="#">Contact</a>
+                    <!--<ul>
+                        <li><a href="#">Laptop</a></li>
+                        <li><a href="#">Dien thoai</a></li>
+                        <li class="has-sub"><a href="#">May tinh bang test test</a>
+                            <ul>
+                                <li><a href="#">Samsung</a></li>
+                                <li><a href="#">Iphone</a></li>
+                                <li><a href="#">Xiaomi</a></li>
+                            </ul>
+                        </li>
+                    </ul>-->
+                </li>
+            </ul>
+        </div>
+        <div class="loading">
+            <img src="images/loading.gif" height="100" alt="loading...">
+        </div>
+        <div id="left" class="col-s-3 col-2">
+            <label><input name="sort" value="1" class="sort" type="radio"> Price Ascending <i
+                    class="fas fa-arrow-circle-up"></i></label><br>
+            <label><input name="sort" value="2" class="sort" type="radio"> Price Descending <i
+                    class="fas fa-arrow-circle-down"></i></label><br>
+            <label><input name="sort" value="3" class="sort" type="radio"> Name Ascending <i
+                    class="fas fa-arrow-circle-up"></i></label><br>
+            <label><input name="sort" value="4" class="sort" type="radio"> Name Descending <i
+                    class="fas fa-arrow-circle-down"></i></label><br>
+            <select name="sort">
+                <optgroup label="Price">
+                    <option value="0">...</option>
+                    <option value="1">Price Ascending</option>
+                    <option value="2">Price Descending</option>
+                </optgroup>
+                <optgroup label="Name">
+                    <option value="3">Name Ascending</option>
+                    <option value="4">Name Descending</option>
+                </optgroup>
+            </select>
+            <select name="filter">
+                <option value="0">...</option>
+                <option value="1">Price &lt;= $50</option>
+                <option value="2">Price between $50 and $100</option>
+                <option value="3">Price between $100 and $500</option>
+                <option value="4">Price between $500 and $1000</option>
+                <option value="5">Price &gt;= $1000</option>
+            </select>
+        </div>
+
+        <div id="main" class="col-s-9 col-8">
+        </div>
+        <div id="right" class="col-s-12 col-2">
+            <input type="text" id="myInput" onkeyup="searchByName()" placeholder="Search for names.."
+                title="Type in a name">
+                <!--alo test-->
+        </div>
+        <div id="footer"></div>
+    </div>
+   
+    <script>
+       //SearchByName("test");
+       let firstClick = true;
+        //Chọn button trong #menu
+        let menuBtn = document.querySelector('#menu button');
+
+        //Khi click vào button sẽ gọi hàm toggleMenu
+        menuBtn.addEventListener('click', toggleMenu);
+
+        //Hàm xử lý sự kiện khi click vào button
+        function toggleMenu() {
+            //Ẩn hiện menu, thay đổi label của button
+            let menu = document.querySelector('#menu ul');
+            if (menu.className === 'show') {
+                menu.className = 'hide';
+                menuBtn.firstChild.className = 'fas fa-bars';
+            }
+            else {
+                menu.className = 'show';
+                menuBtn.firstChild.className = 'fas fa-window-close';
+            }
+        }
+        //Xử lý menu bị ẩn khi resize từ mobile -> desktop
+        window.addEventListener('resize', fixHiddenMenu);
+        function fixHiddenMenu() {
+            //console.log(window.outerWidth + ',' +window.innerWidth);
+            if (window.innerWidth >= 768) {
+                let menu = document.querySelector('#menu ul');
+                menu.classList.remove('hide');
+            }
+        }
+
+        //Get product from API
+        productArr = [];
+        //Đường dẫn đến API để lấy dữ liệu (Theo hướng dẫn sử dụng của API)
+        let url = 'https://fakestoreapi.com/products?sort=desc';
+        $('#loading').show(500);
+        fetch(url, {})
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (data) {
+                initData(data);
+            })
+            .catch(function (err) {
+                console.log(err);
+            });
+        console.log(productArr);
+
+        // fetch('https://fakestoreapi.com/products',{
+        //     method:"POST",
+        //     body:JSON.stringify(
+        //         {
+        //             title: 'test product',
+        //             price: 13.5,
+        //             description: 'lorem ipsum set',
+        //             image: 'https://i.pravatar.cc',
+        //             category: 'electronic'
+        //         }
+        //     )
+        // })
+        //     .then(res=>res.json())
+        //     .then(json=>console.log(json))
+
+        //fetch(url,{})
+        //     .then(function(response){
+        //         return response.json();
+        //     })
+        //     .then(function(data){
+        //         initData(data);
+        //     })
+        function initData(data) {
+            //Load xong data tu API
+            //Dong modal
+            $('.loading').hide();
+            productArr = data;
+            console.log(productArr);
+            filteredProduct = productArr;
+            //show products by default
+            displayProduct(productArr);
+
+        }
+
+
+        //Show products
+
+        // var productArr = [{
+        //     name: "iPad Pro 11 inch",
+        //     fileName: "ipad.png",
+        //     price: 12000000,
+        //     category: "Tablet",
+        //     rate: 5,
+        //     isHot: true,
+        // },
+        // {
+        //     name: "IPhone Pro 12 inch",
+        //     fileName: "ipad.png",
+        //     price: 19500000,
+        //     category: "Mobile",
+        //     rate: 5,
+        //     isHot: false,
+        // },
+        // {
+        //     name: "iPad Pro 11 inch",
+        //     fileName: "ipad.gif",
+        //     price: 29000000,
+        //     category: "Tablet",
+        //     rate: 5,
+        //     isHot: true,
+        // },
+        // {
+        //     name: "Samsung S20",
+        //     fileName: "samsung.jpg",
+        //     price: 18500000,
+        //     category: "Tablet",
+        //     rate: 5,
+        //     isHot: false,
+        // },
+        // {
+        //     name: "Dell",
+        //     fileName: "dell.jpg",
+        //     price: 17000000,
+        //     category: "Laptop",
+        //     rate: 5,
+        //     isHot: true,
+        // },
+        // {
+        //     name: "Dell XPS",
+        //     fileName: "dell.jpg",
+        //     price: 27000000,
+        //     category: "Laptop",
+        //     rate: 5,
+        //     isHot: false,
+        // }];
+
+        /* Functional programming
+        temp1 = filterProduct(productArr, filterBy);
+        temp2 = sortProduct(temp1, sortBy);
+        displayProduct(temp2);
+        displayProduct(sortProduct(filterProduct(productArr, filterBy), sortBy));
+        */
+
+        /* Hàm hiển thị sản phẩm trong #main
+        * productArr: Mảng sản phẩm cần hiển thị
+        */
+        function displayProduct(productArr) {
+            let output = '';
+            for (product of productArr) {
+                //Literal template
+                output += `<div class="col-s-6 col-4 col-l-3">
+                <div class="product">
+                    <h2 id="title">${product.title.toLowerCase()}</h2>
+                    <img src="${product.image}" alt="Ipad">
+                    <div>${product.price.toLocaleString()} $</div>`;
+                //${product.isHot?'<span>Hot</span>':''}
+                output += `<button id="add-to-cart"><a href = "cart.html"> Add to cart</a></button>
+                    </div>
+                </div>`;
+            }
+            //output to #main
+            document.querySelector('#main').innerHTML = output;
+        }
+
+
+        //Xử lý sự kiện click trên radio button sort
+        document.querySelectorAll('input.sort').forEach(function (element) {
+            element.addEventListener('click', function () {
+                //Sort product                
+                sortProduct(this.value);
+                //Show product
+                displayProduct(filteredProduct);
+                //Update comboBox sort (selected)
+
+            });
+        });
+        //Xử lý sự kiện click trên comboBox
+        document.querySelector('select[name="sort"]').addEventListener('change', function () {
+            //Sort product 
+            sortProduct(this.value);
+            //Show product
+            displayProduct(productArr);
+            //Update radio list (checked)
+        });
+        /*Hàm sắp xếp sản phẩm theo tên hoặc giá Asc/Desc
+        * sortBy: Kiểu sắp xếp 1: Giá Asc, 2: Giá Desc, 3: Name Asc, 4: Name Desc
+        */
+        function sortProduct(sortBy) {
+            //Sắp xếp mảng productArr tăng dần theo giá sản phẩm
+            if (sortBy == 1)
+                filteredProduct.sort(function (a, b) {
+                    return a.price - b.price;
+                });
+            //Sắp xếp mảng productArr giảm dần theo giá sản phẩm
+            if (sortBy == 2)
+                filteredProduct.sort(function (a, b) {
+                    return b.price - a.price;
+                });
+
+            //Your code goes here. Please!!!
+            //Sắp xếp mảng productArr tăng dần theo tên sản phẩm
+            if (sortBy == 3)
+                filteredProduct.sort(function (a, b) {
+                    if (a.title.toLowerCase() < b.title.toLowerCase())
+                        return -1;
+                    if (a.title.toLowerCase() > b.title.toLowerCase())
+                        return 1;
+                    return 0;
+                });
+            //Sắp xếp mảng productArr giảm dần theo tên sản phẩm
+            if (sortBy == 4)
+                filteredProduct.sort(function (a, b) {
+                    if (a.title.toLowerCase() > b.title.toLowerCase())
+                        return -1;
+                    if (a.title.toLowerCase() < b.title.toLowerCase())
+                        return 1;
+                    return 0;
+                });
+        }
+        document.querySelector('select[name="filter"]').addEventListener('change', function () {
+            filteredProduct = productArr;
+            if (this.value == 1)// Price <= $50
+            {
+                filteredProduct = productArr.filter(function (product) {
+                    return product.price <= 50;
+                })
+            }
+            if (this.value == 2)//  $50 <= Price <= $100 
+            {
+                filteredProduct = productArr.filter(function (product) {
+                    return (product.price >= 50 && product.price <= 100);
+                })
+            }
+            if (this.value == 3)// $100 <= Price <= $500
+            {
+                filteredProduct = productArr.filter(function (product) {
+                    return (product.price >= 100 && product.price <= 500);
+                })
+            }
+            if (this.value == 4)// $500 <= Price <= $1000
+            {
+                filteredProduct = productArr.filter(function (product) {
+                    return (product.price >= 500 && product.price <= 1000);
+                })
+            }
+            if (this.value == 5)// Price >= $1000
+            {
+                filteredProduct = productArr.filter(function (product) {
+                    return product.price >= 1000;
+                })
+            }
+            //console.log(filteredProduct);
+            displayProduct(filteredProduct);
+        });
+
+        //Xử lý sự kiện add to cart thêm vào giỏ hàng 
+        document.querySelector('#add-to-cart').addEventListener('click', function () {
+
+        })
+//Search tên sản phẩm
+
+        function searchByName () {
+            
+                let input = document.getElementById('myInput').value;
+                input = input.toLowerCase();
+                let name = document.getElementById('title');
+                
+                for (i = 0; i < name.length; i++) {
+                    if (!name[i].innerHTML.toLowerCase().includes(input)) {
+                        name[i].style.display = "none";
+                    }
+                    else {
+                        name[i].style.display = filteredProduct;
+                    }
+                }
+                //Show product
+                displayProduct(filteredProduct);
+                //Update comboBox sort (selected)
+
+            };
+            searchByName();
+    </script>
+</body>
+
+</html>
