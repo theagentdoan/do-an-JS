@@ -76,7 +76,7 @@
                 </form>
                 <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
                     <div class="col">TOTAL PRICE</div>
-                    <div class="col text-right product-total">&dollar; 0</div>
+                    <div id="product-total-price" class="col text-right product-total">&dollar; 0</div>
                 </div> <button class="btn">CHECKOUT</button>
             </div>
         </div>
@@ -180,13 +180,18 @@
             .catch(function (err) {
                 console.log(err);
             });
-        console.log(productCart);
+        // console.log(productCart);
 
         function initData(data) {
             //Load xong data tu API
             //Dong modal
             $('.loading').hide();
             productCart = data;
+
+            productCart.forEach((product) => {
+                product.qty = 0;
+            });
+
             console.log(productCart);
             filteredProduct = productCart;
             //show products by default
@@ -195,6 +200,7 @@
 
         function showProduct() {
             let productCnt = 0;
+            let productTotalPrice = 0;
             //Reset ds san pham
             $('#product-list').html('');//innerHTML = '';
 
@@ -217,15 +223,18 @@
                 $('#product-list').append(output);
                 //
                 productCnt += product.qty;
+                productTotalPrice += product.qty * product.price;
             });
 
             //Show tổng số lượng sản phẩm
             $('#product-cnt').html('ITEMS ' + productCnt);
 
+            $('#product-total-price').html(productTotalPrice);
+
 
 
             //Gán sự kiện change cho tất cả qty
-            $('input[name="qty"]').change(updateQty);
+            $('input[name="qty"]').change(updateQuantity);
 
             //Update tổng thành tiền
             
@@ -239,7 +248,7 @@
         showProduct();
 
         //Xử lý update số lượng SP
-        function updateQty() {
+        function updateQuantity() {
             //    alert(this.value);
             //Update số lượng
             let index = this.dataset.index;

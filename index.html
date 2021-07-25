@@ -362,16 +362,22 @@
             
                 let input = document.getElementById('myInput').value;
                 input = input.toLowerCase();
-                let name = document.getElementById('title');
-                
-                for (i = 0; i < name.length; i++) {
-                    if (!name[i].innerHTML.toLowerCase().includes(input)) {
-                        name[i].style.display = "none";
+                let filteredProduct = [];
+
+
+                productArr.forEach(product => {
+                    if (product.title.toLowerCase().includes(input)) {
+                        filteredProduct.push(product);
                     }
-                    else {
-                        name[i].style.display = filteredProduct;
+                });
+
+
+                for (let index = 0; index < productArr.length; index++) {
+                    if (productArr[index].title.toLowerCase().includes(input)) {
+                        filteredProduct.push(productArr[index]);
                     }
                 }
+
                 //Show product
                 displayProduct(filteredProduct);
                 //Update comboBox sort (selected)
