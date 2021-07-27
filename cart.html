@@ -76,7 +76,7 @@
                 </form>
                 <div class="row" style="border-top: 1px solid rgba(0,0,0,.1); padding: 2vh 0;">
                     <div class="col">TOTAL PRICE</div>
-                    <div class="col text-right product-total">&dollar; 0</div>
+                    <div id="product-total-price" class="col text-right product-total">&dollar; 0</div>
                 </div> <button class="btn">CHECKOUT</button>
             </div>
         </div>
@@ -111,14 +111,14 @@
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="price">Price</label>
-                                    <input type="text" class="form-control" pattern="[1-9][0-9]{6,9}" id="price"
+                                    <input type="text" class="form-control" pattern="[1-9][0-9]{1,9}" id="price"
                                         placeholder="Price in VND" required>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="form-group">
-                                    <label for="qty">Qty</label>
-                                    <input type="number" class="form-control" min="1" id="qty" placeholder="Quantity"
+                                    <label for="quantity">Quantity</label>
+                                    <input type="number" class="form-control" min="1" id="quantity" placeholder="Quantity"
                                         required>
                                 </div>
                             </div>
@@ -139,7 +139,8 @@
         //JQuery
         //Thêm product to cart
         //$('#add-to-cart').click(function (event) {
-        $('#form-add-product').submit(function (event) {
+        let productCart = [];
+            $('#form-add-product').submit(function (event) {
             //Chặn submit form
             event.preventDefault();
             //Tạo đối tưởng product từ các dữ liệu nhập từ form
@@ -153,7 +154,7 @@
                 image: image,
                 price: parseInt($('#price').val()),
                 category: $('#desc').val(),
-                qty: parseInt($('#qty').val())
+                quantity: parseInt($('#quantity').val())
             }
             //console.log(product);
             //Thêm vào mảng productCart
@@ -187,6 +188,8 @@
             //Dong modal
             $('.loading').hide();
             productCart = data;
+            productCart.forEach((product) => {
+                product.quantity = 0;});
             console.log(productCart);
             filteredProduct = productCart;
             //show products by default
@@ -195,6 +198,7 @@
 
         function showProduct() {
             let productCnt = 0;
+            let productTotalPrice = 0;
             //Reset ds san pham
             $('#product-list').html('');//innerHTML = '';
 
@@ -208,7 +212,7 @@
                             <div class="row text-muted">${product.title}</div>
                             <div class="row">${product.category}</div>
                         </div>
-                        <div class="col"> <input id="quantity" name="qty" min="1" type="number" data-index="${index}" value="${product.qty}"> </div>
+                        <div class="col"> <input id="quantity" name="quantity" min="1" type="number" data-index="${index}" value="${product.quantity}"> </div>
                         <div class="col" id="unitprice" value="${product.price}">&dollar; ${product.price.toLocaleString()} <button class="remove" data-index="${index}">&#10005;</button></div>
                     </div>
                 </div>
@@ -216,54 +220,36 @@
                 //Thêm vào list
                 $('#product-list').append(output);
                 //
-                productCnt += product.qty;
+                productCnt += product.quantity;
+                productTotalPrice += product.quantity * product.price;
             });
 
             //Show tổng số lượng sản phẩm
             $('#product-cnt').html('ITEMS ' + productCnt);
+            $('.product-total').html(Math.round(productTotalPrice));
 
 
+            //Gán sự kiện change cho tất cả quantity
+            $('input[name="quantity"]').change(updateQuantity);
 
-            //Gán sự kiện change cho tất cả qty
-            $('input[name="qty"]').change(updateQty);
-
-            //Update tổng thành tiền
-            
-            // productTotal += (product.price*product.qty);
-            //$('.product-total').html('0 ' + total);
-            $('#unitprice').change(updatePrice);
-
+           
             //Gán sự kiện xóa product
             $('.remove').click(removeProduct);
         }
         showProduct();
 
         //Xử lý update số lượng SP
-        function updateQty() {
+        function updateQuantity() {
             //    alert(this.value);
             //Update số lượng
             let index = this.dataset.index;
             //alert(index);
-            productCart[index].qty = parseInt(this.value);
+            productCart[index].quantity = parseInt(this.value);
+            
             showProduct();
         };
 
-        // function updatePrice(){
-        //     let index = this.dataset.index;
-        //     //alert(index);
-        //     productCart[index].price = parseInt(this.value);
-
-        // }
-
-        function updatePrice() {
-            var price = $('#unitprice').val();
-            var quantity = $('#quantity').val();
-            total = price * quantity;
-            //$('.product-total').val(total);
-            $('.product-total').html('0 ' + total);
-            return;
-        };
-        //
+        
         function removeProduct() {
             if (confirm("Are you sure?")) {
                 let index = this.dataset.index;

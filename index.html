@@ -93,7 +93,7 @@
         <div id="right" class="col-s-12 col-2">
             <input type="text" id="myInput" onkeyup="searchByName()" placeholder="Search for names.."
                 title="Type in a name">
-                <!--alo test-->
+                
         </div>
         <div id="footer"></div>
     </div>
@@ -358,26 +358,45 @@
         })
 //Search tên sản phẩm
 
-        function searchByName () {
+        // function searchByName () {
             
-                let input = document.getElementById('myInput').value;
-                input = input.toLowerCase();
-                let name = document.getElementById('title');
+        //         let input = document.getElementById('myInput').value;
+        //         input = input.toLowerCase();
+        //         let name = document.getElementById('title');
                 
-                for (i = 0; i < name.length; i++) {
-                    if (!name[i].innerHTML.toLowerCase().includes(input)) {
-                        name[i].style.display = "none";
-                    }
-                    else {
-                        name[i].style.display = filteredProduct;
-                    }
-                }
-                //Show product
-                displayProduct(filteredProduct);
-                //Update comboBox sort (selected)
+        //         for (i = 0; i < name.length; i++) {
+        //             if (!name[i].innerHTML.toLowerCase().includes(input)) {
+        //                 name[i].style.display = "none";
+        //             }
+        //             else {
+        //                 name[i].style.display = filteredProduct;
+        //             }
+        //         }
+        //         //Show product
+        //         displayProduct(filteredProduct);
+        //         //Update comboBox sort (selected)
 
-            };
-            searchByName();
+        //     };
+        //     searchByName();
+
+            function searchByName () {
+            
+            let input = document.getElementById('myInput').value;
+            input = input.toLowerCase();
+            let filteredProduct = [];
+
+
+            productArr.forEach(product => {
+                if (product.title.toLowerCase().includes(input)) {
+                    filteredProduct.push(product);
+                }
+            });
+
+            //Show product
+            displayProduct(filteredProduct);
+            //Update comboBox sort (selected)
+
+        };
     </script>
 </body>
 
